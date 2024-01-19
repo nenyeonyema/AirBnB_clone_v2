@@ -113,15 +113,50 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
+    def do_create(self, arg):
+        """ Create an object with given parameters """
+        if not arg:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        args = arg.split(' ')
+        class_name = args[0]
+
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+
+        # Extracting parameters and their values
+        params = {}
+        for param in args[1:]:
+            parts = param.split('=')
+            if len(parts) == 2:
+                key, value = parts[0], parts[1]
+                # Process value based on its type
+                if value.startswith('"') and value.endswith('"'):
+                    # String value, remove quotes and replace underscores
+                    value = value[1:-1].replace('_', ' ')
+                elif '.' in value:
+                    # Float value
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        print(f"Invalid value for parameter {key}: {value}")
+                        return
+                else:
+                    # Integer value
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        print(f"Invalid value for parameter {key}: {value}")
+                        return
+
+                params[key] = value
+            else:
+                print(f"Invalid parameter format: {param}")
+
+        # Create an instance of the specified class with the provided parameters
+        new_instance = HBNBCommand.classes[class_name](**params)
         storage.save()
         print(new_instance.id)
         storage.save()
