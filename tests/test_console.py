@@ -74,6 +74,7 @@ class TestConsole(unittest.TestCase):
         with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             self.console.onecmd("create BaseModel invalid_param=invalid_value")
             output = mock_stdout.getvalue().strip()
+            self.assertIn("invalid_param: invalid_value", output)
             self.assertIn("** attribute name missing **", output)
 
  
