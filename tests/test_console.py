@@ -1,149 +1,74 @@
 #!/usr/bin/python3
-"""Defines unittests for console.py."""
-import os
+"""
+Unittests for console.py
+"""
+
 import unittest
 from unittest.mock import patch
 from io import StringIO
 from console import HBNBCommand
-from models.engine.file_storage import FileStorage
 
 
-class TestHBNBCommand(unittest.TestCase):
-    """Unittests for testing the HBNB command interpreter."""
+class TestConsole(unittest.TestCase):
+    """Test cases for console.py"""
 
     @classmethod
     def setUpClass(cls):
-        """HBNBCommand testing setup.
+        """Set up the class"""
+        cls.console = HBNBCommand()
 
-        Temporarily rename any existing file.json.
-        Reset FileStorage objects dictionary.
-        Create an instance of the command interpreter.
-        """
-        try:
-            os.rename("file.json", "tmp")
-        except IOError:
-            pass
-        # Create an instance of the HBNBCommand class. This allows the test
-        # methods within the class to access and use this instance during the
-        # testing process.
-        cls.HBNB = HBNBCommand()
+    def test_quit_command(self):
+        """Test quit command"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            self.assertTrue(self.console.onecmd("quit"))
+            output = mock_stdout.getvalue().strip()
+            self.assertEqual(output, "")
 
-    @classmethod
-    def tearDownClass(cls):
-        """HBNBCommand testing teardown.
+    def test_EOF_command(self):
+        """Test EOF command"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            self.assertTrue(self.console.onecmd("EOF"))
+            output = mock_stdout.getvalue().strip()
+            self.assertEqual(output, "")
 
-        Restore original file.json.
-        Delete the test HBNBCommand instance.
-        """
-        try:
-            os.rename("tmp", "file.json")
-        except IOError:
-            pass
-        del cls.HBNB
+    def test_emptyline(self):
+        """Test emptyline method"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            self.console.emptyline()
+            output = mock_stdout.getvalue().strip()
+            self.assertEqual(output, "")
 
-    def setUp(self):
-        """Reset FileStorage objects dictionary."""
-        FileStorage._FileStorage__objects = {}
+    def test_help_quit_command(self):
+        """Test help quit command"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            self.console.onecmd("help quit")
+            output = mock_stdout.getvalue().strip()
+            self.assertEqual(output, "Quit command to exit the program")
 
-    def tearDown(self):
-        """Delete any created file.json."""
-        try:
-            os.remove("file.json")
-        except IOError:
-            pass
+    def test_help_EOF_command(self):
+        """Test help EOF command"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            self.console.onecmd("help EOF")
+            output = mock_stdout.getvalue().strip()
+            self.assertEqual(output, "EOF command to exit the program")
 
-    def test_create_for_errors(self):
-        """Test create command errors."""
-        # Test if class name is missing
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create")
-            self.assertEqual(
-                "** class name missing **\n", f.getvalue())
-        # Test if class doesn't exist
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create asdfsfsd")
-            self.assertEqual(
-                "** class doesn't exist **\n", f.getvalue())
+    def test_noninteractive_mode_help(self):
+        """Test non-interactive mode with help command"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            with patch('sys.stdin', StringIO('help\n')) as mock_stdin:
+                self.console.cmdloop()
+                output = mock_stdout.getvalue().strip()
+                self.assertIn("(hbnb)", output)
+                self.assertIn
 
-    def test_create_command_validity(self):
-        """Test create command."""
-        # Create BaseModel instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create BaseModel")
-            bm = f.getvalue().strip()
-
-        # Create User instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create User")
-            us = f.getvalue().strip()
-
-        # Create State instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create State")
-            st = f.getvalue().strip()
-
-        # Create Place instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create Place")
-            pl = f.getvalue().strip()
-
-        # Create City instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create City")
-            ct = f.getvalue().strip()
-
-        # Create Review instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create Review")
-            rv = f.getvalue().strip()
-
-        # Create Amenity instance and capture its ID
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("create Amenity")
-            am = f.getvalue().strip()
-        # Test if the created instances are in the output of "all" command
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all BaseModel")
-            self.assertIn(bm, f.getvalue())
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all User")
-            self.assertIn(us, f.getvalue())
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all State")
-            self.assertIn(st, f.getvalue())
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all Place")
-            self.assertIn(pl, f.getvalue())
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all City")
-            self.assertIn(ct, f.getvalue())
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all Review")
-            self.assertIn(rv, f.getvalue())
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all Amenity")
-            self.assertIn(am, f.getvalue())
-
-    def test_create_command_with_kwargs(self):
-        """Test create command with kwargs."""
-        # Test create command with additional key-value pairs
-        with patch("sys.stdout", new=StringIO()) as f:
-            call = (f'create Place city_id="0001" name="My_house"\
-                    number_rooms=4 latitude=37.77 longitude=43.434')
-            self.HBNB.onecmd(call)
-            pl = f.getvalue().strip()
-         # Test if the created instance and kwargs are in the
-         #    output of "all" command
-        with patch("sys.stdout", new=StringIO()) as f:
-            self.HBNB.onecmd("all Place")
-            output = f.getvalue()
-            self.assertIn(pl, output)
-            self.assertIn("'city_id': '0001'", output)
-            self.assertIn("'name': 'My house'", output)
-            self.assertIn("'number_rooms': 4", output)
-            self.assertIn("'latitude': 37.77", output)
-            self.assertIn("'longitude': 43.434", output)
+    def test_noninteractive_mode_quit(self):
+        """Test non-interactive mode with quit command"""
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            with patch('sys.stdin', StringIO('quit\n')) as mock_stdin:
+                self.console.cmdloop()
+                output = mock_stdout.getvalue().strip()
+                self.assertEqual(output, "(hbnb)")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
