@@ -100,7 +100,6 @@ class HBNBCommand(cmd.Cmd):
         """ Prints the help documentation for quit  """
         print("Exits the program with formatting\n")
 
-
     def do_EOF(self, arg):
         """ Handles EOF to exit program """
         print()
@@ -113,7 +112,6 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
-
 
     def do_create(self, arg):
         """ Create an object with given parameters """
@@ -138,8 +136,10 @@ class HBNBCommand(cmd.Cmd):
                 # Process value based on its type
 
                 if value.startswith('"') and value.endswith('"'):
-                    #String value, remove quotes and replace underscores
+
+                    # String value, remove quotes and replace underscores
                     value = value[1:-1].replace('_', ' ')
+
                 elif '.' in value:
                     # Float value
                     try:
@@ -147,7 +147,8 @@ class HBNBCommand(cmd.Cmd):
                     except ValueError:
                         print(f"Invalid value for parameter {key}: {value}")
                         return
-                else:# Integer value
+                else:
+                    # Integer value
                     try:
                         value = int(value)
                     except ValueError:
@@ -157,12 +158,10 @@ class HBNBCommand(cmd.Cmd):
                 params[key] = value
             else:
                 print(f"Invalid parameter format: {param}")
-        # Create an instance of the specified class with the provided parameters
         new_instance = HBNBCommand.classes[class_name](**params)
         storage.save()
         print(new_instance.id)
         storage.save()
-
 
     def help_create(self):
         """ Help information for the create method """
@@ -357,6 +356,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

@@ -64,11 +64,11 @@ class TestConsole(unittest.TestCase):
     def test_create_command(self):
         """Test create command with new syntax"""
         with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
-            self.console.onecmd("create BaseModel name=\"test name\" number_rooms=5")
+            self.console.onecmd("create BaseModel\
+                   name=\"test name\" number_rooms=5")
             output = mock_stdout.getvalue().strip()
             self.assertTrue(len(output) > 0)  # Ensure output is not empty
 
- 
     def test_create_command_invalid_syntax(self):
         """Test create command with invalid syntax"""
         with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
@@ -76,8 +76,6 @@ class TestConsole(unittest.TestCase):
             output = mock_stdout.getvalue().strip()
             self.assertIn("invalid_param: invalid_value", output)
             self.assertIn("** attribute name missing **", output)
-
- 
 
     def test_noninteractive_mode_quit(self):
         """Test non-interactive mode with quit command"""
