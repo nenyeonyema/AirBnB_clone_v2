@@ -17,17 +17,6 @@ def do_pack():
         local('mkdir -p versions')
         local('tar -cvzf {} web_static'.format(archive_path))
         return archive_path
-    except:
-        return None
-
-def do_pack():
-    """Creates an archive from the web_static folder."""
-    try:
-        now = datetime.now().strftime('%Y%m%d%H%M%S')
-        archive_path = 'versions/web_static_{}.tgz'.format(now)
-        local('mkdir -p versions')
-        local('tar -cvzf {} web_static'.format(archive_path))
-        return archive_path
     except Exception as e:  # Catch specific exception
         return None
 
@@ -67,3 +56,12 @@ def do_deploy(archive_path):
         return True
     except Exception as e:  # Catch specific exception
         return False
+
+
+def deploy():
+    """Deploys the web_static archive to the web servers."""
+    archive_path = do_pack()
+    if not archive_path:
+        return False
+
+    return do_deploy(archive_path)
