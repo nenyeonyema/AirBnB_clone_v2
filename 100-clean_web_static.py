@@ -12,28 +12,22 @@ env.user = 'ubuntu'
 
 
 def do_clean(number=0):
+    """Delete out-of-date archives.
+    Args:
+        number (int): The number of archives to keep.
+    If number is 0 or 1, keeps only the most recent archive. If
+    number is 2, keeps the most and second-most recent archives,
+    etc.
     """
-    Deletes out-of-date archives.
-    """
-    try:
-        number = int(number)
-        if number < 0:
-            number = 0
+    number = 1 if int(number) == 0 else int(number)
 
-        # Local clean
-        with lcd("versions"):
-            local_archives = sorted(os.listdir('.'))
-            to_delete = local_archives[:-number] \
-                    if number > 0 else local_archives[:-1]
-            for archive in to_delete:
-                local("rm -f {}".format(archive))
+    archives = sorted(os.listdir("versions"))
+    [archives.pop() for i in range(number)]
+    with lcd("versions"):
+        [local("rm ./{}".format(a)) for a in archives]
 
-        # Remote clean
-        with cd("/data/web_static/releases"):
-            remote_archives = run("ls -tr").split()
-            to_delete = remote_archives[:-number] \
-                    if number > 0 else remote_archives[:-1]
-            for archive in to_delete:
-                run("rm -f {}".format(archive))
-    except Exception as e:
-        pass
+    with cd("/data/web_static/releases"):
+        archives = run("ls -tr").split()
+        archives = [a for a in archives if "web_static_" in a]
+        [archives.pop() for i in range(number)]
+        [run("rm -rf ./{}".format(a)) for a in archives]
