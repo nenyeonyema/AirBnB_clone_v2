@@ -48,29 +48,15 @@ class FileStorage:
             json.dump(odict, f)
 
     def reload(self):
-        """Deserialize the JSON file __file_path to __objects, if it exists."""
+        """serialize the file path to JSON file path
+        """
         try:
-            with open(self.__file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                print("Deserialized data:", data)  # Debugging statement
-                for o in data.values():
-                    print("Processing object:", o)  # Debugging statement
-                    name = o["__class__"]
-                    del o["__class__"]
-                    self.new(eval(name)(**o))
+            with open(self.__file_path, 'r', encoding="UTF-8") as f:
+                for key, value in (json.load(f)).items():
+                    value = eval(value["__class__"])(**value)
+                    self.__objects[key] = value
         except FileNotFoundError:
             pass
-
-#    def reload(self):
-#        """serialize the file path to JSON file path
-#        """
-#        try:
-#            with open(self.__file_path, 'r', encoding="UTF-8") as f:
-#                for key, value in (json.load(f)).items():
-#                    value = eval(value["__class__"])(**value)
-#                    self.__objects[key] = value
-#        except FileNotFoundError:
-#            pass
 
     def delete(self, obj=None):
         """Delete a given object from __objects, if it exists."""
